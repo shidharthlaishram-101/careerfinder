@@ -1,0 +1,105 @@
+🎨 ARTS FIELD (15 Careers)
+
+Graphic Designer — Background: Fine Arts / Visual Communication / Design — Skills: Adobe Photoshop, Illustrator, Creativity, Typography
+
+Content Writer — Background: English / Journalism / Literature — Skills: Writing, Editing, SEO, Research
+
+Journalist — Background: Mass Communication / Journalism — Skills: Reporting, Writing, Interviewing, Storytelling
+
+UI/UX Designer — Background: Design / Computer Science / Fine Arts — Skills: Figma, User Research, Prototyping, Visual Design
+
+Animator — Background: Animation / Multimedia / Fine Arts — Skills: 3D Modeling, Storyboarding, Blender, Maya
+
+Photographer — Background: Any with specialization in Photography — Skills: Composition, Lighting, Editing, Camera Operation
+
+Film Director — Background: Film Studies / Media / Fine Arts — Skills: Storytelling, Leadership, Cinematography, Editing
+
+Social Media Manager — Background: Marketing / Media / Communication — Skills: Content Creation, Analytics, Branding
+
+Interior Designer — Background: Architecture / Design — Skills: CAD, 3D Modeling, Space Planning, Creativity
+
+Fashion Designer — Background: Fashion Design / Textile Design — Skills: Sketching, Fabric Knowledge, Creativity, CAD
+
+Public Relations Officer — Background: Communication / Journalism / Marketing — Skills: Communication, Crisis Management, Networking
+
+Voice-over Artist — Background: Performing Arts / Communication — Skills: Voice Modulation, Diction, Acting
+
+Event Manager — Background: Hospitality / Marketing / Any — Skills: Planning, Coordination, Budgeting, Creativity
+
+Actor / Performer — Background: Theatre / Performing Arts — Skills: Acting, Expression, Confidence, Memorization
+
+Music Producer — Background: Music / Sound Engineering — Skills: Audio Mixing, Composition, Creativity
+
+🔬 SCIENCE FIELD (20 Careers)
+
+Software Engineer — Background: Computer Science / IT — Skills: Programming, DSA, Problem Solving, Git
+
+Data Scientist — Background: Computer Science / Statistics — Skills: Python, ML, Data Visualization, Statistics
+
+AI/ML Engineer — Background: CS / Mathematics / AI — Skills: TensorFlow, Deep Learning, Python
+
+Biotechnologist — Background: Biotechnology / Biology / Chemistry — Skills: Lab Research, Data Analysis, PCR Techniques
+
+Doctor — Background: MBBS / Medical Science — Skills: Diagnosis, Communication, Clinical Knowledge
+
+Nurse — Background: Nursing / Health Science — Skills: Patient Care, Empathy, Observation
+
+Pharmacist — Background: Pharmacy / Chemistry — Skills: Drug Formulation, Medical Knowledge, Counseling
+
+Environmental Scientist — Background: Environmental Science / Biology — Skills: Research, GIS, Data Interpretation
+
+Physiotherapist — Background: Physiotherapy / Health Science — Skills: Anatomy, Patient Care, Exercise Therapy
+
+Nutritionist — Background: Dietetics / Biochemistry — Skills: Nutritional Analysis, Counseling, Health Education
+
+Mechanical Engineer — Background: Mechanical Engg — Skills: CAD, Thermodynamics, Problem Solving
+
+Civil Engineer — Background: Civil Engg — Skills: AutoCAD, Project Management, Structural Design
+
+Electrical Engineer — Background: Electrical Engg — Skills: Circuit Design, Power Systems, MATLAB
+
+Chemical Engineer — Background: Chemical Engg — Skills: Process Design, Thermodynamics, Simulation
+
+Robotics Engineer — Background: Mechanical / CS / Electronics — Skills: ROS, Microcontrollers, Programming
+
+Data Analyst — Background: Statistics / CS / Math — Skills: Excel, SQL, PowerBI, Data Cleaning
+
+Cybersecurity Analyst — Background: CS / IT / Networking — Skills: Ethical Hacking, Network Security, Linux
+
+Astronomer — Background: Physics / Astrophysics — Skills: Research, Observation, Programming (Python, MATLAB)
+
+Forensic Scientist — Background: Forensic Science / Chemistry — Skills: Crime Scene Analysis, Lab Techniques
+
+Genetic Counselor — Background: Genetics / Biology / Psychology — Skills: Counseling, Genomic Analysis
+
+Veterinarian — Background: Veterinary Science — Skills: Animal Care, Surgery, Diagnosis
+
+💼 COMMERCE FIELD (15 Careers)
+
+Chartered Accountant (CA) — Background: Commerce / Accounting — Skills: Taxation, Auditing, Financial Reporting
+
+Financial Analyst — Background: Finance / Economics / Commerce — Skills: Excel, Valuation, Forecasting
+
+Investment Banker — Background: Finance / MBA — Skills: Market Analysis, Excel, Communication
+
+Business Analyst — Background: Commerce / IT / MBA — Skills: Data Analysis, SQL, Communication
+
+Entrepreneur — Background: Any / Business — Skills: Leadership, Finance, Marketing
+
+Marketing Manager — Background: Marketing / Business — Skills: Branding, Strategy, Digital Marketing
+
+Economist — Background: Economics / Statistics — Skills: Research, Econometrics, Data Interpretation
+
+Human Resource Manager — Background: HR / MBA — Skills: Recruitment, People Management, Communication
+
+Sales Executive — Background: Marketing / Commerce — Skills: Negotiation, Communication, CRM
+
+Operations Manager — Background: MBA / Commerce — Skills: Supply Chain, Project Management, Analytics
+
+Actuary — Background: Mathematics / Statistics / Commerce — Skills: Probability, Risk Analysis, Excel
+
+Auditor — Background: Commerce / Accounting — Skills: Financial Auditing, Compliance, Reporting
+
+Stock Broker — Background: Finance / Commerce / Economics — Skills: Market Research, Communication, Analytics
+
+E-commerce Manager — Background: Business / IT / Marketing — Skills: SEO, Product Management, Digital Analytics

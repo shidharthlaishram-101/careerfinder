@@ -1,3 +1,5 @@
+import 'package:aipowered/secondpage.dart';
+import 'package:aipowered/startpage.dart';
 import 'package:flutter/material.dart';
 import 'package:aipowered/services/user_service.dart';
 import 'package:aipowered/services/chat_service.dart';
@@ -334,7 +336,21 @@ class _AppDrawerState extends State<AppDrawer> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+            child: const Text('Close', style: TextStyle(color: Colors.grey)),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context); // Close dialog first
+              await FirebaseAuth.instance.signOut(); // Sign out the user
+
+              // Navigate to StartPage and clear all previous routes
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => Secondpage()),
+                (Route<dynamic> route) => false,
+              );
+            },
+            child: const Text('Logout', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -383,7 +399,7 @@ class _AppDrawerState extends State<AppDrawer> {
                   backgroundColor: Color(0xFF3C74FF),
                   child: Icon(Icons.person, size: 30, color: Colors.white),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 15),
                 Text(
                   _userProfile?['name'] ?? 'Loading...',
                   style: const TextStyle(
@@ -403,12 +419,12 @@ class _AppDrawerState extends State<AppDrawer> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 8),
-                if (_conversations.isNotEmpty)
-                  Text(
-                    '${_conversations.length} conversations',
-                    style: const TextStyle(color: Colors.grey, fontSize: 12),
-                  ),
+                // const SizedBox(height: 15),
+                // if (_conversations.isNotEmpty)
+                //   Text(
+                //     '${_conversations.length} conversations',
+                //     style: const TextStyle(color: Colors.grey, fontSize: 12),
+                //   ),
               ],
             ),
           ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:aipowered/services/appdrawer.dart';
 import 'package:aipowered/services/careerexplorer.dart';
 import 'package:aipowered/services/user_service.dart';
@@ -35,7 +36,6 @@ class _CareerChatbotPageState extends State<CareerChatbotPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Handle navigation arguments
     final args =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     if (args != null) {
@@ -52,21 +52,16 @@ class _CareerChatbotPageState extends State<CareerChatbotPage> {
     if (currentUser == null) return;
 
     try {
-      // Check if there's an existing active conversation
       final latestConversationId = await ChatService.getLatestConversationId(
         currentUser.uid,
       );
-
       if (latestConversationId != null) {
-        // Load existing conversation
         await _loadConversation(latestConversationId);
       } else {
-        // Create new conversation
         await _createNewConversation();
       }
     } catch (e) {
       print('Error initializing conversation: $e');
-      // Fallback: create new conversation
       await _createNewConversation();
     }
   }
@@ -90,7 +85,6 @@ class _CareerChatbotPageState extends State<CareerChatbotPage> {
         });
       });
 
-      // Save the initial bot message
       await ChatService.saveMessage(
         conversationId: conversationId,
         userId: currentUser.uid,
@@ -109,23 +103,18 @@ class _CareerChatbotPageState extends State<CareerChatbotPage> {
       );
       setState(() {
         _currentConversationId = conversationId;
-        _messages.clear();
-        _messages.addAll(
-          messages.map((msg) => {'role': msg['role'], 'text': msg['content']}),
-        );
+        _messages
+          ..clear()
+          ..addAll(
+            messages.map(
+              (msg) => {'role': msg['role'], 'text': msg['content']},
+            ),
+          );
       });
       _scrollToBottom();
     } catch (e) {
       print('Error loading conversation: $e');
     }
-  }
-
-  Future<void> startNewConversation() async {
-    await _createNewConversation();
-  }
-
-  Future<void> loadSpecificConversation(String conversationId) async {
-    await _loadConversation(conversationId);
   }
 
   Future<void> _loadUserProfile() async {
@@ -135,9 +124,7 @@ class _CareerChatbotPageState extends State<CareerChatbotPage> {
         final profile = await UserService.getCompleteUserProfile(
           currentUser.uid,
         );
-        setState(() {
-          _userProfile = profile;
-        });
+        setState(() => _userProfile = profile);
       } catch (e) {
         print('Error loading user profile: $e');
       }
@@ -151,46 +138,42 @@ class _CareerChatbotPageState extends State<CareerChatbotPage> {
     super.dispose();
   }
 
-  /// Makes an API call to the Google Gemini model.
   Future<String> _getGeminiResponse(String userMessage) async {
     final apiKey = dotenv.env['GEMINI_API_KEY'];
-    if (apiKey == null ||
-        apiKey.isEmpty ||
-        apiKey == 'YOUR_GEMINI_API_KEY_HERE') {
-      return "Error: API Key is not configured. Please add your Gemini API key to the .env file.";
+    if (apiKey == null || apiKey.isEmpty) {
+      return "Error: API Key is not configured. Please add your Gemini API key.";
     }
 
-    // Updated to use the current Gemini API endpoint
     const url =
         'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent';
 
-    // Build personalized context based on user profile
     String userContext = "";
     if (_userProfile != null) {
       final name = _userProfile?['name'] ?? 'there';
-      final age = _userProfile?['age'];
-      final educationLevel = _userProfile?['educationLevel'];
-      final stream = _userProfile?['stream'];
+      final education = _userProfile?['educationLevel'];
       final degree = _userProfile?['degree'];
-      final specialization = _userProfile?['specialization'];
-      final isWorking = _userProfile?['isWorking'] ?? false;
-      final workDescription = _userProfile?['workDescription'];
-
-      userContext = "\n\nUser Profile Context:\n";
-      userContext += "Name: $name\n";
-      if (age != null) userContext += "Age: $age\n";
-      if (stream != null) userContext += "Stream: $stream\n";
-      if (educationLevel != null)
-        userContext += "Education Level: $educationLevel\n";
-      if (degree != null) userContext += "Degree: $degree\n";
-      if (specialization != null)
-        userContext += "Specialization: $specialization\n";
-      if (isWorking && workDescription != null) {
-        userContext += "Current Work: $workDescription\n";
-      } else if (!isWorking) {
-        userContext += "Status: Not currently working\n";
-      }
+      userContext =
+          "\nUser Profile:\nName: $name\nDegree: $degree\nEducation: $education\n";
     }
+
+    // === Guardrail to restrict non-career queries ===
+    const instruction = """
+You are an AI Career Advisor. 
+You must respond ONLY to queries related to:
+- Career guidance
+- Job searching
+- Skills development
+- Resume/Interview preparation
+- Career growth, mentorship, or education paths
+- Professional development or workplace advice
+
+If the user asks about topics unrelated to career or professional life 
+(e.g., entertainment, politics, personal life, religion, relationships, etc.), 
+respond strictly with:
+"I'm sorry, but I can only help with career-related questions. Please ask me something about your career or goals."
+
+Always maintain an empathetic, professional, and conversational tone.
+""";
 
     try {
       final response = await http.post(
@@ -200,46 +183,26 @@ class _CareerChatbotPageState extends State<CareerChatbotPage> {
           "contents": [
             {
               "parts": [
-                {
-                  "text":
-                      "You are a professional career advisor and mentor. Your role is STRICTLY limited to providing career guidance, job advice, professional development, and career-related information ONLY. You must NOT answer questions about:\n- General knowledge, history, science, or trivia\n- Personal advice unrelated to careers\n- Entertainment, movies, games, or hobbies\n- Technical support or programming help\n- Current events or news\n- Health, relationships, or personal life advice\n\nIf a user asks about topics outside of career guidance, politely redirect them by saying: 'I'm a career advisor, so I can only help with career-related questions. Please ask me about career paths, job searching, professional development, workplace advice, or career planning.'\n\nFor career-related questions, keep responses concise, encouraging, and actionable. Use the user's profile information to provide personalized career advice.$userContext\n\nAnswer this career question: $userMessage",
-                },
+                {"text": "$instruction$userContext\nUser asked: $userMessage"},
               ],
             },
           ],
-          "generationConfig": {
-            "temperature": 0.7,
-            "topK": 40,
-            "topP": 0.95,
-            "maxOutputTokens": 1024,
-          },
+          "generationConfig": {"temperature": 0.7, "maxOutputTokens": 1024},
         }),
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        // Navigate through the JSON to get the response text
-        if (data['candidates'] != null &&
-            data['candidates'].isNotEmpty &&
-            data['candidates'][0]['content'] != null &&
-            data['candidates'][0]['content']['parts'] != null &&
-            data['candidates'][0]['content']['parts'].isNotEmpty) {
-          final text = data['candidates'][0]['content']['parts'][0]['text'];
-          return text;
-        } else {
-          return "Error: Invalid response format from API.";
-        }
+        return data['candidates']?[0]?['content']?['parts']?[0]?['text'] ??
+            "No response from Gemini.";
       } else {
-        // More detailed error handling
-        final errorBody = response.body;
-        return "Error: Failed to get a response. Status: ${response.statusCode}. Response: $errorBody";
+        return "Error: Gemini API failed (${response.statusCode})";
       }
     } catch (e) {
-      return "Error: An exception occurred. Please check your connection. Details: $e";
+      return "Error: $e";
     }
   }
 
-  /// Handles sending a message (both from user input and pre-defined actions).
   void _sendMessage({String? message}) async {
     final userMessage = message ?? _controller.text.trim();
     if (userMessage.isEmpty || _currentConversationId == null) return;
@@ -252,46 +215,33 @@ class _CareerChatbotPageState extends State<CareerChatbotPage> {
       _isTyping = true;
     });
 
-    _scrollToBottom();
     _controller.clear();
+    _scrollToBottom();
 
-    // Save user message to database
-    try {
-      await ChatService.saveMessage(
-        conversationId: _currentConversationId!,
-        userId: currentUser.uid,
-        role: 'user',
-        content: userMessage,
-      );
-      print('User message saved to conversation: $_currentConversationId');
-    } catch (e) {
-      print('Error saving user message: $e');
-    }
+    await ChatService.saveMessage(
+      conversationId: _currentConversationId!,
+      userId: currentUser.uid,
+      role: 'user',
+      content: userMessage,
+    );
 
-    String botResponse = await _getGeminiResponse(userMessage);
+    final botResponse = await _getGeminiResponse(userMessage);
 
     setState(() {
       _messages.add({"role": "bot", "text": botResponse});
       _isTyping = false;
     });
 
-    // Save bot response to database
-    try {
-      await ChatService.saveMessage(
-        conversationId: _currentConversationId!,
-        userId: currentUser.uid,
-        role: 'bot',
-        content: botResponse,
-      );
-      print('Bot message saved to conversation: $_currentConversationId');
-    } catch (e) {
-      print('Error saving bot message: $e');
-    }
+    await ChatService.saveMessage(
+      conversationId: _currentConversationId!,
+      userId: currentUser.uid,
+      role: 'bot',
+      content: botResponse,
+    );
 
     _scrollToBottom();
   }
 
-  /// Smoothly scrolls the chat list to the latest message.
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
@@ -304,7 +254,6 @@ class _CareerChatbotPageState extends State<CareerChatbotPage> {
     });
   }
 
-  /// Shows the career explorer bottom sheet.
   void _showCareerExplorerSheet() {
     showModalBottomSheet(
       context: context,
@@ -321,7 +270,6 @@ class _CareerChatbotPageState extends State<CareerChatbotPage> {
     );
   }
 
-  /// Builds the UI for a single chat message bubble.
   Widget _buildMessageBubble(Map<String, String> message) {
     bool isUser = message["role"] == "user";
     return Align(
@@ -338,10 +286,7 @@ class _CareerChatbotPageState extends State<CareerChatbotPage> {
         ),
         child: Text(
           message["text"]!,
-          style: TextStyle(
-            color: isUser ? Colors.white : Colors.white.withOpacity(0.9),
-            fontSize: 15,
-          ),
+          style: const TextStyle(color: Colors.white, fontSize: 15),
         ),
       ),
     );
@@ -349,124 +294,128 @@ class _CareerChatbotPageState extends State<CareerChatbotPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      resizeToAvoidBottomInset: false,
-      backgroundColor: const Color(0xFF0E0E10),
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.menu, color: Colors.white),
-          onPressed: () {
-            _scaffoldKey.currentState?.openDrawer();
-          },
-        ),
+    return WillPopScope(
+      onWillPop: () async {
+        // Exit app instead of navigating back to another page
+        SystemNavigator.pop();
+        return false;
+      },
+      child: Scaffold(
+        key: _scaffoldKey,
+        resizeToAvoidBottomInset: false,
         backgroundColor: const Color(0xFF0E0E10),
-        elevation: 0,
-        title: const Text(
-          "Career Advisor",
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-      ),
-      drawer: const AppDrawer(),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView.builder(
-                controller: _scrollController,
-                padding: const EdgeInsets.all(10),
-                itemCount: _messages.length,
-                itemBuilder: (context, index) {
-                  return _buildMessageBubble(_messages[index]);
-                },
-              ),
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.menu, color: Colors.white),
+            onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+          ),
+          backgroundColor: const Color(0xFF0E0E10),
+          elevation: 0,
+          title: const Text(
+            "Career Advisor",
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
             ),
-            if (_isTyping)
-              const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    "Career Advisor is typing...",
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontStyle: FontStyle.italic,
+          ),
+          centerTitle: true,
+        ),
+        drawer: const AppDrawer(),
+        body: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  controller: _scrollController,
+                  padding: const EdgeInsets.all(10),
+                  itemCount: _messages.length,
+                  itemBuilder: (context, index) =>
+                      _buildMessageBubble(_messages[index]),
+                ),
+              ),
+              if (_isTyping)
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "Career Advisor is typing...",
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontStyle: FontStyle.italic,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            // Keyboard-aware input container
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeOut,
-              padding: EdgeInsets.only(
-                left: 10,
-                right: 10,
-                bottom: MediaQuery.of(context).viewInsets.bottom > 0
-                    ? MediaQuery.of(context).viewInsets.bottom + 10
-                    : MediaQuery.of(context).padding.bottom + 10,
-                top: 6,
-              ),
-              color: const Color(0xFF1A1A1C),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  IconButton(
-                    icon: const Icon(
-                      Icons.add_circle_outline_rounded,
-                      color: Colors.grey,
-                    ),
-                    onPressed: _showCareerExplorerSheet,
-                  ),
-                  Expanded(
-                    child: TextField(
-                      controller: _controller,
-                      style: const TextStyle(color: Colors.white),
-                      keyboardType: TextInputType.multiline,
-                      minLines: 1,
-                      maxLines: 5,
-                      decoration: InputDecoration(
-                        // hintText:
-                        //     "Ask about career guidance, jobs, or professional development...",
-                        // hintStyle: TextStyle(color: Colors.grey.shade500),
-                        filled: true,
-                        fillColor: Colors.grey.shade900,
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 14,
-                          horizontal: 16,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(25),
-                          borderSide: BorderSide.none,
-                        ),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOut,
+                padding: EdgeInsets.only(
+                  left: 10,
+                  right: 10,
+                  bottom: MediaQuery.of(context).viewInsets.bottom > 0
+                      ? MediaQuery.of(context).viewInsets.bottom + 10
+                      : MediaQuery.of(context).padding.bottom + 10,
+                  top: 6,
+                ),
+                color: const Color(0xFF1A1A1C),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      icon: const Icon(
+                        Icons.add_circle_outline_rounded,
+                        color: Colors.grey,
                       ),
-                      onSubmitted: (_) => _sendMessage(),
+                      onPressed: _showCareerExplorerSheet,
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 4.0),
-                    child: GestureDetector(
-                      onTap: () => _sendMessage(),
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF3C74FF),
-                          shape: BoxShape.circle,
+                    Expanded(
+                      child: TextField(
+                        controller: _controller,
+                        style: const TextStyle(color: Colors.white),
+                        keyboardType: TextInputType.multiline,
+                        minLines: 1,
+                        maxLines: 5,
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.grey.shade900,
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 14,
+                            horizontal: 16,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25),
+                            borderSide: BorderSide.none,
+                          ),
                         ),
-                        child: const Icon(
-                          Icons.send,
-                          color: Colors.white,
-                          size: 20,
+                        onSubmitted: (_) => _sendMessage(),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 4.0),
+                      child: GestureDetector(
+                        onTap: () => _sendMessage(),
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF3C74FF),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.send,
+                            color: Colors.white,
+                            size: 20,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

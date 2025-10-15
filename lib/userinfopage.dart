@@ -152,6 +152,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text(
           "Tell us about yourself",
           style: TextStyle(color: Colors.white),
